@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { updateSupabaseSession } from "./middlewares/supabase.middleware";
 
 /*
-  Official Next.js middleware entry point.
-  - SRP: this file only coordinates the global middleware.
+  Official Next.js proxy entry point (formerly "middleware").
+  - SRP: this file only coordinates the global proxy.
  */
 
-export async function middleware(
+export async function proxy(
   request: NextRequest
 ): Promise<NextResponse> {
   return updateSupabaseSession(request);

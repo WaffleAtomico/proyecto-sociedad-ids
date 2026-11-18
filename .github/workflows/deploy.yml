@@ -1,28 +1,50 @@
-name: Lint Codebase
+name: Next.js CI/CD & Deploy
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
-  lint:
-    name: Run Linter
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Descargar código
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Preparar Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: npm
+          node-version: '22'
+          cache: 'npm'
 
-      - name: Instalar dependencias
+      - name: Install dependencies
         run: npm ci
 
-      - name: Ejecutar linter
+      - name: Run Linter
         run: npm run lint
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }} --token=${{ secrets.VERCEL_TOKEN }}
+    
+      - name: Debug Environment Variables (Check if loaded)
+        run: |
+          if [ -f .env.production.local ] || [ -f .env.development.local ] || [ -f .env ]; then
+            echo "Environment file successfully pulled."
+          else
+            echo "Warning: No env file found after vercel pull."
+          fi
+
+      - name: Build Project Artifacts
+        run: vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}

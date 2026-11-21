@@ -33,7 +33,7 @@ export const BLOB_SHAPES = [
   { d: "M50,12 C72,12 84,28 84,52 L84,84 Q75,76 67,84 Q58,76 50,84 Q42,76 33,84 Q25,76 16,84 L16,52 C16,28 28,12 50,12 Z", eyeY: -3 },
   { d: "M16,32 L30,44 L50,22 L70,44 L84,32 L82,74 C80,84 68,88 50,88 C32,88 20,84 18,74 Z", eyeY: 11 },
 ];
-
+// R-04 / H-04: Constant for the number of eye variants, centralized for easier management and updates
 export const EYE_VARIANTS_COUNT = 7;
 
 export function hashString(str) {

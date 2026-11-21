@@ -1,5 +1,6 @@
 import Link from "next/link";
-
+// R-05 / H-05: Before — several components repeated complete <button> markup and Tailwind styles.
+// After — reusable Button component centralizes base styles, variants, sizes, loading, and links.
 const BASE_STYLES =
   "inline-flex items-center justify-center gap-2 rounded-full font-semibold tracking-wide transition-all duration-200 active:scale-95 cursor-pointer disabled:opacity-50 disabled:pointer-events-none select-none";
 

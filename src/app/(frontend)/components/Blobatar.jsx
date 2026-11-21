@@ -1,6 +1,10 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef, useSyncExternalStore } from "react";
+
+// R-03 / H-03: Before — palettes, shapes, hash logic, and eye variants were mixed inside Blobatar.jsx.
+// After — PALETTES, BLOB_SHAPES, EYE_VARIANTS_COUNT, and hashString are imported from the constants module created for this purpose.
+
 import {
   PALETTES,
   BLOB_SHAPES,

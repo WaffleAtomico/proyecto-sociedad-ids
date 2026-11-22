@@ -50,6 +50,23 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Tests
+
+The API endpoints are covered with [Vitest](https://vitest.dev/). The tests follow the
+same scenarios documented in the `postman/` collections (success cases, permissions,
+validation errors and missing resources) and run fully offline by replacing the
+Supabase and R2 clients with in-memory mocks.
+
+```bash
+npm test              # run the test suite
+npm run test:watch    # watch mode
+npm run test:coverage # run with V8 coverage (enforces the thresholds in vitest.config.ts)
+```
+
+Coverage is generated in `coverage/` (HTML, LCOV and JSON summary). CI runs the tests
+with coverage on every pull request and on every push to `master` before deploying,
+and uploads the report as a workflow artifact.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

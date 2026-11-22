@@ -46,29 +46,51 @@ export function parseUserInput(
         : undefined,
   };
 }
+// R-02
+type ValidatedRequiredBlogFields = {
+  title: string;
+  content: string;
+  eventStartDate: string;
+  eventEndDate: string;
+  publicationType: ContentType;
+};
+
+function hasRequiredBlogFields(
+  input: Record<string, unknown>
+): input is Record<string, unknown> & ValidatedRequiredBlogFields {
+  return (
+    isString(input.title) &&
+    isString(input.content) &&
+    isString(input.eventStartDate) &&
+    isString(input.eventEndDate) &&
+    isContentType(input.publicationType)
+  );
+}
+
+function hasValidOptionalBlogFields(
+  input: Record<string, unknown>
+): boolean {
+  return (
+    isOptionalString(input.expirationDate) &&
+    isOptionalString(input.location) &&
+    isOptionalString(input.registrationUrl) &&
+    isOptionalString(input.calendarId) &&
+    isOptionalString(input.administratorId)
+  );
+}
 
 export function parseBlogInput(
   value: unknown
 ): BlogInput | null {
-  if (!value || typeof value !== "object") return null;
-  const input = value as Record<string, unknown>;
-
-  if (
-    !isString(input.title) ||
-    !isString(input.content) ||
-    !isString(input.eventStartDate) ||
-    !isString(input.eventEndDate) ||
-    !isContentType(input.publicationType)
-  ) {
+  if (!value || typeof value !== "object") {
     return null;
   }
 
+  const input = value as Record<string, unknown>;
+
   if (
-    !isOptionalString(input.expirationDate) ||
-    !isOptionalString(input.location) ||
-    !isOptionalString(input.registrationUrl) ||
-    !isOptionalString(input.calendarId) ||
-    !isOptionalString(input.administratorId)
+    !hasRequiredBlogFields(input) ||
+    !hasValidOptionalBlogFields(input)
   ) {
     return null;
   }

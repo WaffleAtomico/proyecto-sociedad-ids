@@ -120,7 +120,7 @@ export class BlogService {
     return BlogRepository.delete(db, blogId);
   }
 
-  static async registerView(
+    static async registerView(
     db: SupabaseClient,
     blogId: string
   ) {
@@ -131,34 +131,14 @@ export class BlogService {
       return result;
     }
 
-    return BlogRepository.updateCounters(
+    return BlogRepository.updateViewCount(
       db,
       blogId,
-      result.data.viewCount + 1,
-      result.data.likeCount
+      result.data.viewCount + 1
     );
   }
 
-  static async registerLike(
-    db: SupabaseClient,
-    blogId: string
-  ) {
-    const result =
-      await BlogRepository.findById(db, blogId);
-
-    if (result.error || !result.data) {
-      return result;
-    }
-
-    return BlogRepository.updateCounters(
-      db,
-      blogId,
-      result.data.viewCount,
-      result.data.likeCount + 1
-    );
-  }
-
-  static async listVisiblePosts(db: SupabaseClient) {
+   static async listVisiblePosts(db: SupabaseClient) {
     return BlogRepository.findVisible(db);
   }
 }

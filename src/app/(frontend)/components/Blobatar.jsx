@@ -35,6 +35,9 @@ export default function Blobatar({
   const avatar = useMemo(() => {
     const h = hashString(activeSeed);
     const palette = PALETTES[h % PALETTES.length];
+    // R-04 / H-04: Before - eye variants were hardcoded and not centralized, making it difficult to manage and update, as well
+    // to understand what the number of eye variants represented as just a magic number.
+    // After - eye variants  are centralized in the constants module, making it easier to manage, understand and update.
     const shapeObj = BLOB_SHAPES[(h >>> 4) % BLOB_SHAPES.length] || BLOB_SHAPES[0];
     const eyeStyle = (h >>> 8) % EYE_VARIANTS_COUNT;
     const tilt = ((h >>> 12) % 13) - 6;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState, useSyncExternalStore } from "react";
 import { Lalezar, Jost } from "next/font/google";
 import MiniCalendar from "../components/MiniCalendar";
 import { apiFetch } from "../../../lib/api";
@@ -15,6 +15,10 @@ const MONTHS = [
 
 const DAYS_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 const formatDateKey = (date) => {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -22,15 +26,17 @@ const formatDateKey = (date) => {
   return `${y}-${m}-${d}`;
 };
 
-export default function Calendar() {
-  const [currentDate, setCurrentDate] = useState(null);
+function CalendarContent() {
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    getClientSnapshot,
+    getServerSnapshot
+  );
+
+  const [selectedDate, setSelectedDate] = useState(null);
   const [viewMode, setViewMode] = useState("week");
   const [events, setEvents] = useState([]);
   const [eventsError, setEventsError] = useState("");
-
-  useEffect(() => {
-    setCurrentDate(new Date());
-  }, []);
 
   useEffect(() => {
     let isActive = true;
@@ -85,7 +91,7 @@ export default function Calendar() {
     };
   }, []);
 
-  if (!currentDate) {
+  if (!isClient) {
     return (
       <main
         className={`${jost.className} box-border flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_center,#111184_0%,#070738_70%,#010736_100%)] p-5 text-white`}
@@ -94,6 +100,8 @@ export default function Calendar() {
       </main>
     );
   }
+
+  const currentDate = selectedDate ?? new Date();
 
   const getWeekDays = (baseDate) => {
     const dayOfWeek = (baseDate.getDay() + 6) % 7;
@@ -123,7 +131,7 @@ export default function Calendar() {
   const changeMonth = (offset) => {
     const next = new Date(currentDate);
     next.setMonth(currentDate.getMonth() + offset);
-    setCurrentDate(next);
+    setSelectedDate(next);
   };
 
   const changePeriod = (offset) => {
@@ -131,11 +139,11 @@ export default function Calendar() {
     if (viewMode === "day") next.setDate(currentDate.getDate() + offset);
     if (viewMode === "week") next.setDate(currentDate.getDate() + offset * 7);
     if (viewMode === "month") next.setMonth(currentDate.getMonth() + offset);
-    setCurrentDate(next);
+    setSelectedDate(next);
   };
 
   const selectCalendarDay = (date) => {
-    setCurrentDate(date);
+    setSelectedDate(date);
     setViewMode("day");
   };
 
@@ -226,7 +234,7 @@ export default function Calendar() {
                   return (
                     <div
                       key={dateKey}
-                      onClick={() => setCurrentDate(date)}
+                      onClick={() => setSelectedDate(date)}
                       className={`cursor-pointer rounded-xl border p-2 text-center text-[13px] text-white backdrop-blur-[10px] transition-all duration-200 ${
                         isSelected
                           ? "border-white/[0.45] bg-[rgba(159,161,255,0.55)]"
@@ -311,7 +319,7 @@ export default function Calendar() {
                   <div
                     key={dateKey}
                     onClick={() => {
-                      setCurrentDate(date);
+                      setSelectedDate(date);
                       setViewMode("day");
                     }}
                     className="flex min-h-[85px] cursor-pointer flex-col gap-1 rounded-[10px] border border-[rgba(159,161,255,0.3)] p-[6px] transition-colors duration-150 hover:bg-[rgba(87,35,100,0.3)]"
@@ -338,5 +346,19 @@ export default function Calendar() {
         )}
       </section>
     </main>
+  );
+}
+
+export default function Calendar() {
+  return (
+    <Suspense
+      fallback={
+        <main className={`${jost.className} box-border flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_center,#111184_0%,#070738_70%,#010736_100%)] p-5 text-white`}>
+          <p className="text-lg">Cargando...</p>
+        </main>
+      }
+    >
+      <CalendarContent />
+    </Suspense>
   );
 }

@@ -1,19 +1,24 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useState, useSyncExternalStore } from "react";
 
-export default function MiniCalendar({
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+function MiniCalendarContent({
   events = [],
   onDateSelect,
 }) {
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    getClientSnapshot,
+    getServerSnapshot
+  );
   const [selectedDays, setSelectedDays] = useState([]);
-  const [currentDate, setCurrentDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
 
-  useEffect(() => {
-    setCurrentDate(new Date());
-  }, []);
-
-  if (!currentDate) {
+  if (!isClient) {
     return (
       <section className="m-[10px] box-border flex h-auto w-[250px] flex-col items-center justify-center rounded-2xl border border-white/[0.18] bg-white/[0.06] p-[15px] font-sans text-xs text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-[14px]">
         <p>Cargando...</p>
@@ -21,6 +26,7 @@ export default function MiniCalendar({
     );
   }
 
+  const currentDate = selectedDate ?? new Date();
   const eventDates = new Set(events.map((event) => event.date));
   const daysOfWeek = ["L", "M", "M", "J", "V", "S", "D"];
   const year = currentDate.getFullYear();
@@ -61,7 +67,7 @@ export default function MiniCalendar({
   };
 
   const changeMonth = (offset) => {
-    setCurrentDate(new Date(year, month + offset, 1));
+    setSelectedDate(new Date(year, month + offset, 1));
   };
 
   const handleDayClick = (day) => {
@@ -105,5 +111,19 @@ export default function MiniCalendar({
         ))}
       </div>
     </section>
+  );
+}
+
+export default function MiniCalendar(props) {
+  return (
+    <Suspense
+      fallback={
+        <section className="m-[10px] box-border flex h-auto w-[250px] flex-col items-center justify-center rounded-2xl border border-white/[0.18] bg-white/[0.06] p-[15px] font-sans text-xs text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-[14px]">
+          <p>Cargando...</p>
+        </section>
+      }
+    >
+      <MiniCalendarContent {...props} />
+    </Suspense>
   );
 }

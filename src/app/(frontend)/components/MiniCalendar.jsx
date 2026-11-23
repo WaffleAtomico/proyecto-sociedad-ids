@@ -1,32 +1,28 @@
-import React, { useState } from 'react';
+"use client";
+
+import React, { useEffect, useState } from "react";
 
 export default function MiniCalendar({
   events = [],
   onDateSelect,
 }) {
   const [selectedDays, setSelectedDays] = useState([]);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(null);
+
+  useEffect(() => {
+    setCurrentDate(new Date());
+  }, []);
+
+  if (!currentDate) {
+    return (
+      <section className="m-[10px] box-border flex h-auto w-[250px] flex-col items-center justify-center rounded-2xl border border-white/[0.18] bg-white/[0.06] p-[15px] font-sans text-xs text-white shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-[14px]">
+        <p>Cargando...</p>
+      </section>
+    );
+  }
 
   const eventDates = new Set(events.map((event) => event.date));
-
-  const getDayClass = (day) => {
-    const dateKey = day
-      ? `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-      : null;
-    const isSelected =
-      dateKey !== null &&
-      (eventDates.has(dateKey) || selectedDays.includes(dateKey));
-
-    return `mx-auto flex h-6 w-6 items-center justify-center rounded-full text-white transition-colors duration-200 ${
-      day ? 'cursor-pointer' : 'cursor-default'
-    } ${
-      isSelected
-        ? 'bg-[#9FA1FF]'
-        : 'bg-transparent hover:bg-[rgba(87,35,100,0.3)]'
-    }`;
-  };
-
-  const daysOfWeek = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  const daysOfWeek = ["L", "M", "M", "J", "V", "S", "D"];
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -37,9 +33,26 @@ export default function MiniCalendar({
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1)
   ];
 
+  const getDayClass = (day) => {
+    const dateKey = day
+      ? `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+      : null;
+    const isSelected =
+      dateKey !== null &&
+      (eventDates.has(dateKey) || selectedDays.includes(dateKey));
+
+    return `mx-auto flex h-6 w-6 items-center justify-center rounded-full text-white transition-colors duration-200 ${
+      day ? "cursor-pointer" : "cursor-default"
+    } ${
+      isSelected
+        ? "bg-[#9FA1FF]"
+        : "bg-transparent hover:bg-[rgba(87,35,100,0.3)]"
+    }`;
+  };
+
   const toggleDay = (day) => {
     if (!day) return;
-    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     setSelectedDays((prev) =>
       prev.includes(dateKey)
         ? prev.filter((selectedDay) => selectedDay !== dateKey)
@@ -91,7 +104,6 @@ export default function MiniCalendar({
           </div>
         ))}
       </div>
-
     </section>
   );
 }

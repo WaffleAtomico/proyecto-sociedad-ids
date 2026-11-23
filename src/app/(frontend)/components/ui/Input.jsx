@@ -1,3 +1,6 @@
+// R-05 / H-05: Before — repeated input and textarea components used duplicated Tailwind classes.
+// After — reusable Input and Textarea components centralize base styles, variants, and sizes.
+
 export function Input({ label, className = "", wrapperClassName = "", ...props }) {
   return (
     <div className={wrapperClassName}>

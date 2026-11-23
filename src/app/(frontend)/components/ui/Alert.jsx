@@ -1,3 +1,6 @@
+// R-05 / H-05: Before — repeated alert components used duplicated Tailwind classes.
+// After — reusable Alert component centralizes base styles, variants, and sizes.
+
 export default function Alert({ type = "error", children, className = "" }) {
   if (!children) return null;
 

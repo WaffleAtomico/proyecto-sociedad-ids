@@ -1,3 +1,5 @@
+// R-05 / H-05: Before — repeated card containers used duplicated Tailwind classes.
+// After — reusable Card component centralizes dark, deep, and lavender variants.
 export default function Card({
   children,
   variant = "dark",

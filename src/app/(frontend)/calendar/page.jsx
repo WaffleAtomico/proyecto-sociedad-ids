@@ -23,10 +23,14 @@ const formatDateKey = (date) => {
 };
 
 export default function Calendar() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(null);
   const [viewMode, setViewMode] = useState("week");
   const [events, setEvents] = useState([]);
   const [eventsError, setEventsError] = useState("");
+
+  useEffect(() => {
+    setCurrentDate(new Date());
+  }, []);
 
   useEffect(() => {
     let isActive = true;
@@ -80,6 +84,16 @@ export default function Calendar() {
       isActive = false;
     };
   }, []);
+
+  if (!currentDate) {
+    return (
+      <main
+        className={`${jost.className} box-border flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_center,#111184_0%,#070738_70%,#010736_100%)] p-5 text-white`}
+      >
+        <p className="text-lg">Cargando...</p>
+      </main>
+    );
+  }
 
   const getWeekDays = (baseDate) => {
     const dayOfWeek = (baseDate.getDay() + 6) % 7;
@@ -211,7 +225,7 @@ export default function Calendar() {
                   const dayName = DAYS_NAMES[(date.getDay() + 6) % 7];
                   return (
                     <div
-                      key={date.toISOString()}
+                      key={dateKey}
                       onClick={() => setCurrentDate(date)}
                       className={`cursor-pointer rounded-xl border p-2 text-center text-[13px] text-white backdrop-blur-[10px] transition-all duration-200 ${
                         isSelected

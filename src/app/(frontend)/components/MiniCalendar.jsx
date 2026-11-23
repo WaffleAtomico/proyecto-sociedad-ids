@@ -5,18 +5,20 @@ import React, { Suspense, useState, useSyncExternalStore } from "react";
 const emptySubscribe = () => () => {};
 const getClientSnapshot = () => true;
 const getServerSnapshot = () => false;
+const formatDateKey = (year, month, day) =>
+  `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
 function MiniCalendarContent({
   events = [],
   onDateSelect,
+  selectedDate,
 }) {
   const isClient = useSyncExternalStore(
     emptySubscribe,
     getClientSnapshot,
     getServerSnapshot
   );
-  const [selectedDays, setSelectedDays] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [displayDate, setDisplayDate] = useState(null);
 
   if (!isClient) {
     return (
@@ -26,11 +28,21 @@ function MiniCalendarContent({
     );
   }
 
-  const currentDate = selectedDate ?? new Date();
+  const activeDate = selectedDate ?? new Date();
+  const activeDateKey = formatDateKey(
+    activeDate.getFullYear(),
+    activeDate.getMonth(),
+    activeDate.getDate()
+  );
+  const currentDate =
+    displayDate?.activeDateKey === activeDateKey
+      ? displayDate.date
+      : activeDate;
   const eventDates = new Set(events.map((event) => event.date));
   const daysOfWeek = ["L", "M", "M", "J", "V", "S", "D"];
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+  const selectedDay = activeDateKey;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
 
@@ -40,12 +52,8 @@ function MiniCalendarContent({
   ];
 
   const getDayClass = (day) => {
-    const dateKey = day
-      ? `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-      : null;
-    const isSelected =
-      dateKey !== null &&
-      (eventDates.has(dateKey) || selectedDays.includes(dateKey));
+    const dateKey = day ? formatDateKey(year, month, day) : null;
+    const isSelected = dateKey === selectedDay;
 
     return `mx-auto flex h-6 w-6 items-center justify-center rounded-full text-white transition-colors duration-200 ${
       day ? "cursor-pointer" : "cursor-default"
@@ -53,26 +61,18 @@ function MiniCalendarContent({
       isSelected
         ? "bg-[#9FA1FF]"
         : "bg-transparent hover:bg-[rgba(87,35,100,0.3)]"
-    }`;
-  };
-
-  const toggleDay = (day) => {
-    if (!day) return;
-    const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    setSelectedDays((prev) =>
-      prev.includes(dateKey)
-        ? prev.filter((selectedDay) => selectedDay !== dateKey)
-        : [...prev, dateKey]
-    );
+    } ${eventDates.has(dateKey) ? "relative" : ""}`;
   };
 
   const changeMonth = (offset) => {
-    setSelectedDate(new Date(year, month + offset, 1));
+    setDisplayDate({
+      activeDateKey,
+      date: new Date(year, month + offset, 1),
+    });
   };
 
   const handleDayClick = (day) => {
     if (!day) return;
-    toggleDay(day);
     onDateSelect?.(new Date(year, month, day));
   };
 
@@ -100,15 +100,28 @@ function MiniCalendarContent({
           </div>
         ))}
 
-        {calendarCells.map((day, index) => (
-          <div
-            key={`day-${index}`}
-            className={getDayClass(day)}
-            onClick={() => handleDayClick(day)}
-          >
-            {day}
-          </div>
-        ))}
+        {calendarCells.map((day, index) => {
+          if (!day) return <div key={`day-${index}`} aria-hidden="true" />;
+
+          const dateKey = formatDateKey(year, month, day);
+          return (
+            <button
+              key={`day-${index}`}
+              type="button"
+              aria-pressed={dateKey === selectedDay}
+              className={getDayClass(day)}
+              onClick={() => handleDayClick(day)}
+            >
+              {day}
+              {eventDates.has(dateKey) && (
+                <span
+                  aria-label="Hay un evento"
+                  className="absolute bottom-0.5 h-1 w-1 rounded-full bg-[#F4C95D]"
+                />
+              )}
+            </button>
+          );
+        })}
       </div>
     </section>
   );

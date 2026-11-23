@@ -166,7 +166,11 @@ function CalendarContent() {
   return (
     <main className={`${jost.className} box-border flex min-h-screen gap-6 bg-[radial-gradient(circle_at_center,#111184_0%,#070738_70%,#010736_100%)] p-5 text-white`}>
       <aside className="shrink-0">
-        <MiniCalendar events={events} onDateSelect={selectCalendarDay} />
+        <MiniCalendar
+          events={events}
+          selectedDate={currentDate}
+          onDateSelect={selectCalendarDay}
+        />
       </aside>
 
       <section className="flex min-w-0 flex-1 flex-col gap-4 overflow-hidden">

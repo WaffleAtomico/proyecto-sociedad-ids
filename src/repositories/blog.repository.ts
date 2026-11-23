@@ -91,15 +91,14 @@ export class BlogRepository {
       .eq("id", blogId);
   }
 
-  static async updateCounters(
+    static async updateViewCount(
     db: SupabaseClient,
     blogId: string,
-    viewCount: number,
-    likeCount: number
+    viewCount: number
   ) {
     return db
       .from("Blog")
-      .update({ viewCount, likeCount })
+      .update({ viewCount })
       .eq("id", blogId)
       .select()
       .single();

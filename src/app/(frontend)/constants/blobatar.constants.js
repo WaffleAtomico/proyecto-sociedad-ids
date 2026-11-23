@@ -1,3 +1,5 @@
+// R-03 / H-03: Before — visual configuration was duplicated and difficult to locate inside the component.
+// After — palettes, shapes, eye variant count, and hash logic are centralized in this module.
 export const PALETTES = [
   { bg: "#9FA1FF", eye: "#010736", stroke: "#010736" }, // Lavanda Racoode
   { bg: "#9747FF", eye: "#FFFAEA", stroke: "#FFFAEA" }, // Morado Racoode

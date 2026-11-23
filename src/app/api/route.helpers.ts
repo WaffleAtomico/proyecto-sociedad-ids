@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   authenticateRequest,
   requireAdministrator,
+  AuthenticatedUser,
 } from "../../middlewares/auth.middleware";
 import { ApiError, handleApiError } from "../../middlewares/error.middleware";
 import { SupabaseClient } from "@supabase/supabase-js";
@@ -11,13 +12,23 @@ type DatabaseRoute = (
   db: SupabaseClient
 ) => Promise<NextResponse>;
 
+type AuthenticatedDatabaseRoute = (
+  request: NextRequest,
+  db: SupabaseClient,
+  user: AuthenticatedUser
+) => Promise<NextResponse>;
+
 export function withAuthenticatedUser(
-  handler: DatabaseRoute
+  handler: AuthenticatedDatabaseRoute
 ): DatabaseRoute {
   return async (request, db) => {
     const result = authenticateRequest(request);
-    if (!result.authenticated) return result.response;
-    return handler(request, db);
+
+    if (!result.authenticated) {
+      return result.response;
+    }
+
+    return handler(request, db, result.user);
   };
 }
 
@@ -26,7 +37,11 @@ export function withAdministrator(
 ): DatabaseRoute {
   return async (request, db) => {
     const result = requireAdministrator(request);
-    if (!result.authenticated) return result.response;
+
+    if (!result.authenticated) {
+      return result.response;
+    }
+
     return handler(request, db);
   };
 }

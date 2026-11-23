@@ -82,17 +82,6 @@ export class BlogController {
     return NextResponse.json({ success: true, data: result.data });
   }
 
-  static async registerLike(
-    _request: NextRequest,
-    db: SupabaseClient,
-    postId: string
-  ) {
-    const result = await BlogService.registerLike(db, postId);
-    if (result.error) return databaseError(result.error, "Could not register the like.");
-    if (!result.data) return notFound("Post not found.");
-    return NextResponse.json({ success: true, data: result.data });
-  }
-
   static async listPosts(_request: NextRequest, db: SupabaseClient) {
     const result = await BlogService.listVisiblePosts(db);
     if (result.error) return databaseError(result.error, "Could not fetch blog posts.");

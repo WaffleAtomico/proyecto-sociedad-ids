@@ -42,3 +42,8 @@ export function hashString(str) {
   }
   return hash >>> 0;
 }
+
+export function getBlobatarPalette(seed = "racoode") {
+  const h = hashString(String(seed || "racoode"));
+  return PALETTES[h % PALETTES.length];
+}

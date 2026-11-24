@@ -124,3 +124,19 @@
 .rotate-y-180 {
   transform: rotateY(180deg);
 }
+
+/* Animación de virutas al dar like en el foro */
+@keyframes forumHeartChip {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx), var(--ty)) scale(0.35) rotate(140deg);
+  }
+}
+
+.animate-forum-chip {
+  animation: forumHeartChip 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

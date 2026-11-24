@@ -12,6 +12,7 @@ export default function Blobatar({
   seed = "racoode-guest",
   size = 48,
   interactive = false,
+  inLove = false,
   onClick,
   className = "",
 }) {
@@ -118,7 +119,13 @@ export default function Blobatar({
       />
 
       <g transform={`translate(0, ${eyeY})`}>
-        {blink ? (
+        {inLove ? (
+          /* Ojos de corazón animados al recibir Like */
+          <g fill={palette.eye} className="animate-pulse">
+            <path d="M38 57.5C38 57.5 30.5 52.3 30.5 47.2C30.5 44.6 32.5 42.6 34.9 42.6C36.4 42.6 37.5 43.4 38 44.5C38.5 43.4 39.6 42.6 41.1 42.6C43.5 42.6 45.5 44.6 45.5 47.2C45.5 52.3 38 57.5 38 57.5Z" />
+            <path d="M62 57.5C62 57.5 54.5 52.3 54.5 47.2C54.5 44.6 56.5 42.6 58.9 42.6C60.4 42.6 61.5 43.4 62 44.5C62.5 43.4 63.6 42.6 65.1 42.6C67.5 42.6 69.5 44.6 69.5 47.2C69.5 52.3 62 57.5 62 57.5Z" />
+          </g>
+        ) : blink ? (
           <g stroke={palette.eye} strokeWidth="4.2" strokeLinecap="round">
             <line x1="34" y1="52" x2="43" y2="52" />
             <line x1="57" y1="52" x2="66" y2="52" />

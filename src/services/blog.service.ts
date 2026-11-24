@@ -5,8 +5,12 @@ import {
 } from "../types/crud.types";
 import { ContentType } from "../types/enums";
 import { BlogRepository } from "../repositories/blog.repository";
+import { BlogRepositoryPort } from "../interfaces/blog.repository.port";
 
 export class BlogService {
+  // R-06 (H-07): los métodos dependen del puerto; BlogRepository es solo el valor por defecto.
+  static repository: BlogRepositoryPort = BlogRepository;
+
   static async publishPost(
     db: SupabaseClient,
     input: BlogInput
@@ -20,7 +24,7 @@ export class BlogService {
       );
     }
 
-    return BlogRepository.create(db, {
+    return BlogService.repository.create(db, {
       id: input.id ?? crypto.randomUUID(),
       title: input.title.trim(),
       content: input.content.trim(),
@@ -64,7 +68,7 @@ export class BlogService {
       throw new Error("Content cannot be empty.");
     }
 
-    return BlogRepository.update(db, blogId, {
+    return BlogService.repository.update(db, blogId, {
       ...changes,
       title: changes.title?.trim(),
       content: changes.content?.trim(),
@@ -75,7 +79,7 @@ export class BlogService {
     db: SupabaseClient,
     blogId: string
   ) {
-    return BlogRepository.findById(
+    return BlogService.repository.findById(
       db,
       blogId,
       true
@@ -85,7 +89,7 @@ export class BlogService {
   static async displayEvents(
     db: SupabaseClient
   ) {
-    return BlogRepository.findVisible(
+    return BlogService.repository.findVisible(
       db,
       ContentType.EVENT
     );
@@ -95,7 +99,7 @@ export class BlogService {
     db: SupabaseClient,
     blogId: string
   ) {
-    return BlogRepository.setVisibility(
+    return BlogService.repository.setVisibility(
       db,
       blogId,
       false
@@ -106,7 +110,7 @@ export class BlogService {
     db: SupabaseClient,
     blogId: string
   ) {
-    return BlogRepository.setVisibility(
+    return BlogService.repository.setVisibility(
       db,
       blogId,
       true
@@ -117,7 +121,7 @@ export class BlogService {
     db: SupabaseClient,
     blogId: string
   ) {
-    return BlogRepository.delete(db, blogId);
+    return BlogService.repository.delete(db, blogId);
   }
 
     static async registerView(
@@ -125,13 +129,13 @@ export class BlogService {
     blogId: string
   ) {
     const result =
-      await BlogRepository.findById(db, blogId);
+      await BlogService.repository.findById(db, blogId);
 
     if (result.error || !result.data) {
       return result;
     }
 
-    return BlogRepository.updateViewCount(
+    return BlogService.repository.updateViewCount(
       db,
       blogId,
       result.data.viewCount + 1
@@ -139,6 +143,6 @@ export class BlogService {
   }
 
    static async listVisiblePosts(db: SupabaseClient) {
-    return BlogRepository.findVisible(db);
+    return BlogService.repository.findVisible(db);
   }
 }

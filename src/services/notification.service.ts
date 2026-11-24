@@ -1,8 +1,12 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { NotificationInput } from "../types/crud.types";
 import { NotificationRepository } from "../repositories/notification.repository";
+import { NotificationRepositoryPort } from "../interfaces/notification.repository.port";
 
 export class NotificationService {
+  // R-06 (H-07): los métodos dependen del puerto; NotificationRepository es solo el valor por defecto.
+  static repository: NotificationRepositoryPort = NotificationRepository;
+
   static async notify(
     db: SupabaseClient,
     input: NotificationInput
@@ -17,7 +21,7 @@ export class NotificationService {
       );
     }
 
-    return NotificationRepository.create(db, {
+    return NotificationService.repository.create(db, {
       id: input.id ?? crypto.randomUUID(),
       title: input.title.trim(),
       content: input.content.trim(),
@@ -32,7 +36,7 @@ export class NotificationService {
     db: SupabaseClient,
     recipientId: string
   ) {
-    return NotificationRepository.findUnreadByRecipient(
+    return NotificationService.repository.findUnreadByRecipient(
       db,
       recipientId
     );
@@ -42,7 +46,7 @@ export class NotificationService {
     db: SupabaseClient,
     notificationId: string
   ) {
-    return NotificationRepository.markAsRead(
+    return NotificationService.repository.markAsRead(
       db,
       notificationId
     );

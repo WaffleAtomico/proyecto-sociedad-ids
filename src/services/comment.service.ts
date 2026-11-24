@@ -4,8 +4,12 @@ import {
   CommentUpdateInput,
 } from "../types/crud.types";
 import { CommentRepository } from "../repositories/comment.repository";
+import { CommentRepositoryPort } from "../interfaces/comment.repository.port";
 
 export class CommentService {
+  // R-06 (H-07): los métodos dependen del puerto; CommentRepository es solo el valor por defecto.
+  static repository: CommentRepositoryPort = CommentRepository;
+
   static async publishComment(
     db: SupabaseClient,
     input: CommentInput
@@ -20,7 +24,7 @@ export class CommentService {
       );
     }
 
-    return CommentRepository.create(db, {
+    return CommentService.repository.create(db, {
       id: input.id ?? crypto.randomUUID(),
       content: input.content.trim(),
       authorId: input.authorId,
@@ -47,14 +51,14 @@ export class CommentService {
     db: SupabaseClient,
     forumId: string
   ) {
-    return CommentRepository.findByForum(db, forumId);
+    return CommentService.repository.findByForum(db, forumId);
   }
 
   static async hideComment(
     db: SupabaseClient,
     commentId: string
   ) {
-    return CommentRepository.update(
+    return CommentService.repository.update(
       db,
       commentId,
       { isHiddenByAuthor: true }
@@ -65,7 +69,7 @@ export class CommentService {
     db: SupabaseClient,
     commentId: string
   ) {
-    const result = await CommentRepository.findById(
+    const result = await CommentService.repository.findById(
       db,
       commentId
     );
@@ -88,7 +92,7 @@ export class CommentService {
     db: SupabaseClient,
     commentId: string
   ) {
-    return CommentRepository.delete(db, commentId);
+    return CommentService.repository.delete(db, commentId);
   }
 
   static async update(
@@ -96,7 +100,7 @@ export class CommentService {
     commentId: string,
     changes: CommentUpdateInput
   ) {
-    return CommentRepository.update(
+    return CommentService.repository.update(
       db,
       commentId,
       changes

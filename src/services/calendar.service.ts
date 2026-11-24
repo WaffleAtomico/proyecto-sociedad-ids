@@ -1,9 +1,15 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { CalendarInput } from "../types/crud.types";
 import { CalendarRepository } from "../repositories/calendar.repository";
+import { CalendarRepositoryPort } from "../interfaces/calendar.repository.port";
 import { BlogService } from "./blog.service";
+import { EventDisplayPort } from "../interfaces/event.display.port";
 
 export class CalendarService {
+  // R-06 (H-07): los métodos dependen del puerto; CalendarRepository es solo el valor por defecto.
+  static repository: CalendarRepositoryPort = CalendarRepository;
+  static events: EventDisplayPort = BlogService;
+
   static async create(
     db: SupabaseClient,
     input: CalendarInput
@@ -17,7 +23,7 @@ export class CalendarService {
       );
     }
 
-    return CalendarRepository.create(db, {
+    return CalendarService.repository.create(db, {
       id: input.id ?? crypto.randomUUID(),
       semesterStartDate: input.semesterStartDate,
       semesterEndDate: input.semesterEndDate,
@@ -28,7 +34,7 @@ export class CalendarService {
     db: SupabaseClient,
     calendarId: string
   ) {
-    return CalendarRepository.findById(db, calendarId);
+    return CalendarService.repository.findById(db, calendarId);
   }
 
   static async update(
@@ -36,7 +42,7 @@ export class CalendarService {
     calendarId: string,
     changes: Partial<CalendarInput>
   ) {
-    return CalendarRepository.update(
+    return CalendarService.repository.update(
       db,
       calendarId,
       changes
@@ -47,12 +53,12 @@ export class CalendarService {
     db: SupabaseClient,
     calendarId: string
   ) {
-    return CalendarRepository.delete(db, calendarId);
+    return CalendarService.repository.delete(db, calendarId);
   }
 
   static async displayEvents(
     db: SupabaseClient
   ) {
-    return BlogService.displayEvents(db);
+    return CalendarService.events.displayEvents(db);
   }
 }

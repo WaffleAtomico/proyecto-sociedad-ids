@@ -4,8 +4,12 @@ import {
   UserUpdateInput,
 } from "../types/crud.types";
 import { UserRepository } from "../repositories/user.repository";
+import { UserRepositoryPort } from "../interfaces/user.repository.port";
 
 export class UserService {
+  // R-06 (H-07): los métodos dependen del puerto; UserRepository es solo el valor por defecto.
+  static repository: UserRepositoryPort = UserRepository;
+
   static async create(
     db: SupabaseClient,
     input: UserInput
@@ -20,7 +24,7 @@ export class UserService {
       );
     }
 
-    return UserRepository.create(db, {
+    return UserService.repository.create(db, {
       id: input.id ?? crypto.randomUUID(),
       name: input.name.trim(),
       username: input.username.trim(),
@@ -36,7 +40,7 @@ export class UserService {
     db: SupabaseClient,
     userId: string
   ) {
-    return UserRepository.findById(db, userId);
+    return UserService.repository.findById(db, userId);
   }
 
   static async update(
@@ -51,7 +55,7 @@ export class UserService {
       throw new Error("Username cannot be empty.");
     }
 
-    return UserRepository.update(db, userId, {
+    return UserService.repository.update(db, userId, {
       ...changes,
       username: changes.username?.trim(),
     });
@@ -61,6 +65,6 @@ export class UserService {
     db: SupabaseClient,
     userId: string
   ) {
-    return UserRepository.delete(db, userId);
+    return UserService.repository.delete(db, userId);
   }
 }

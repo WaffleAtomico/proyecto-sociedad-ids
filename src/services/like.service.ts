@@ -1,13 +1,17 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { LikeRepository } from "../repositories/like.repository";
+import { LikeRepositoryPort } from "../interfaces/like.repository.port";
 
 export class LikeService {
+  // R-06 (H-07): los métodos dependen del puerto; LikeRepository es solo el valor por defecto.
+  static repository: LikeRepositoryPort = LikeRepository;
+
   static async likeBlog(
     db: SupabaseClient,
     userId: string,
     blogId: string
   ) {
-    const blog = await LikeRepository.findLikeableBlog(
+    const blog = await LikeService.repository.findLikeableBlog(
       db,
       blogId
     );
@@ -29,7 +33,7 @@ export class LikeService {
     }
 
     const result =
-      await LikeRepository.createBlogLike(
+      await LikeService.repository.createBlogLike(
         db,
         userId,
         blogId
@@ -47,7 +51,7 @@ export class LikeService {
     userId: string,
     blogId: string
   ) {
-    return LikeRepository.deleteBlogLike(
+    return LikeService.repository.deleteBlogLike(
       db,
       userId,
       blogId
@@ -58,7 +62,7 @@ export class LikeService {
     db: SupabaseClient,
     userId: string
   ) {
-    return LikeRepository.findLikedBlogs(
+    return LikeService.repository.findLikedBlogs(
       db,
       userId
     );
